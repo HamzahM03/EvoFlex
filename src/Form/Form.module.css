@@ -1,0 +1,24 @@
+.infoForm{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height:100dvh;
+
+}
+
+.formDiv{
+  display: flex;
+  flex-direction: column;
+  gap:10px;
+ 
+}
+
+.heightInputs {
+  display: flex;
+  gap: 10px; 
+  align-items: center; 
+}
+
+.heightInput {
+  width: 80px; 
+}

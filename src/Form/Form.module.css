@@ -1,24 +1,116 @@
-.infoForm{
+/* General page styles */
+.infoForm {
   display: flex;
   justify-content: center;
   align-items: center;
-  height:100dvh;
-
+  height: 100vh;
+  background-color: #f4f7fc; /* Soft light background */
+  padding: 20px;
 }
 
-.formDiv{
-  display: flex;
-  flex-direction: column;
-  gap:10px;
- 
+.formDiv {
+  background-color: #fff;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 450px;
+  box-sizing: border-box;
 }
 
+/* Title */
+h1 {
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+p {
+  color: #666;
+  font-size: 1.1rem;
+  text-align: center;
+  margin-bottom: 25px;
+  font-weight: 400;
+}
+
+/* Labels */
+label {
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+  font-size: 1rem;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* Input and Select Fields */
+input[type="number"],
+select {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  transition: all 0.3s ease;
+}
+
+/* Hover and focus effects for inputs and selects */
+input[type="number"]:focus,
+select:focus {
+  border-color: #56a0e0;
+  outline: none;
+  box-shadow: 0 0 8px rgba(86, 160, 224, 0.3);
+}
+
+/* Height Input Styling */
 .heightInputs {
   display: flex;
-  gap: 10px; 
-  align-items: center; 
+  justify-content: space-between;
 }
 
 .heightInput {
-  width: 80px; 
+  width: 48%;
+}
+
+.heightInput:focus {
+  border-color: #56a0e0;
+}
+
+/* Buttons */
+button {
+  width: 100%;
+  padding: 15px;
+  font-size: 1.1rem;
+  color: #fff;
+  background-color: #56a0e0;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: #4991d4;
+}
+
+/* Responsive Design */
+@media (max-width: 500px) {
+  .formDiv {
+    width: 90%;
+    padding: 20px;
+  }
+
+  .heightInputs {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .heightInput {
+    width: 100%;
+    margin-bottom: 10px;
+  }
 }

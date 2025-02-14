@@ -23,38 +23,47 @@ This is a simple web application built with **React** that helps users calculate
    git clone https://github.com/your-username/evo-flex-calorie-calculator.git
 
 2. Navigate into the project directory:
+
+   ```bash
    cd evo-flex-calorie-calculator
   
 3. Install dependencies:
+
+   ```bash
    npm install
   
 4. Run the development server:
+
+   ```bash
    npm start
 
 5. Open your browser and navigate to:
+
+   ```bash
    http://localhost:3000
 
-   How It Works
-    1. Home Page (Form):
-    Users input their information such as age, gender, height, weight, and activity level into the form and submit it.
+## How It Works
 
-    2. Results Page:
-    After submission, the app calculates the daily calorie needs (maintenance, gain, or loss) and displays them in a clean and easy-to-read format. The user can also navigate back to the form to adjust their inputs if necessary.
+### Home Page (Form)
+Users input their information such as age, gender, height, weight, and activity level into the form and submit it.
 
-    3. Navigation:
-    A "Go Back" button on the results page allows users to return to the form and make any changes they wish.
-    
-    Contributing
-    Feel free to fork the repository and create pull requests. If you want to contribute, you can help by:
+### Results Page
+After submission, the app calculates the daily calorie needs (maintenance, gain, or loss) and displays them in a clean and easy-to-read format. The user can also navigate back to the form to adjust their inputs if necessary.
 
-    Improving the UI/UX.
-    Adding more features like macronutrient breakdowns (carbs, proteins, fats).
-    Adding unit tests or improving code structure.
-    Contributing to documentation and README.
+### Navigation
+A **"Go Back"** button on the results page allows users to return to the form and make any changes they wish.
 
-    License
-    This project is open-source and available under the MIT License.
+## Contributing
+Feel free to fork the repository and create pull requests. If you want to contribute, you can help by:
 
-    Acknowledgments
-    Special thanks to the creators of the Harris-Benedict equation for providing a simple way to calculate daily caloric needs.
-    React community for the tools and libraries used in this project.
+- Improving the **UI/UX**.
+- Adding more features like **macronutrient breakdowns** (carbs, proteins, fats).
+- Adding **unit tests** or improving code structure.
+- Contributing to **documentation** and **README**.
+
+## License
+This project is open-source and available under the **MIT License**.
+
+## Acknowledgments
+- Special thanks to the creators of the **Harris-Benedict equation** for providing a simple way to calculate daily caloric needs.
+- **React community** for the tools and libraries used in this project.

@@ -1,13 +1,18 @@
 import styles from "./Form.module.css";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 function Form() {
+  const navigate = useNavigate();
+
   const [gender, setGender] = useState("Male");
   const [age, setAge] = useState("");
   const [heightFeet, setHeightFeet] = useState("");
   const [heightInches, setHeightInches] = useState("");
   const [weight, setWeight] = useState("");
   const [activityLevel, setActivityLevel] = useState("sedentary");
+
+  
 
   // Handle changes in form input fields
   const handleSubmit = (e) => {
@@ -39,6 +44,8 @@ function Form() {
       numHeightInches,
       activityLevel
     );
+
+    navigate("/results", { state: { calculatedCalories } });
   
     // Pass calculated results to the results page or show them
     console.log(calculatedCalories);

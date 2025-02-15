@@ -43,7 +43,7 @@ function Form() {
     
 
 
-    navigate("/results", { state: { calculatedCalories, goal } });
+    navigate("/results", { state: { calculatedCalories, goal, weight } });
   
  
   };
@@ -57,7 +57,7 @@ function Form() {
         <p>Enter your information below</p>
 
         <label htmlFor="gender">Select your gender:</label>
-        <select id="gender" name="gender" onChange={(e) => setGender(e.target.value)}> 
+        <select id="gender" name="gender" value={gender} onChange={(e) => setGender(e.target.value)}> 
           <option value="male">Male</option>
           <option value="female">Female</option>
           <option value="non-binary">Non-binary</option>
@@ -66,7 +66,7 @@ function Form() {
         </select>
 
         <label htmlFor="age">Enter your age:</label>
-        <input type="number" id="age" name="age" onChange={(e) => setAge(e.target.value)} min="0" max="120" />
+        <input type="number" id="age" name="age" value={age} onChange={(e) => setAge(e.target.value)} min="0" max="120" />
         <label htmlFor="feet">Height:</label>
         <div className={styles.heightInputs}>
           <input
@@ -89,7 +89,7 @@ function Form() {
           />
         </div>
           <label htmlFor="weight">Weight:</label>
-          <input type="number" placeholder="pounds" onChange={(e) => setWeight(e.target.value)} min="1" ></input>
+          <input type="number" placeholder="pounds" value={weight} onChange={(e) => setWeight(e.target.value)} min="1" ></input>
 
           <label htmlFor="activity-level">Select your activity level:</label>
           <select id="activity-level" name="activity-level" onChange={(e) => setActivityLevel(e.target.value)}>

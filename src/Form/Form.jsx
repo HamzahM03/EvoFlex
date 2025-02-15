@@ -1,25 +1,24 @@
 import styles from "./Form.module.css";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { calculateCalories } from "../Utils/calculations";
 
 function Form() {
   const navigate = useNavigate();
 
-  const [gender, setGender] = useState("Male");
+  const [gender, setGender] = useState("male");
   const [age, setAge] = useState("");
   const [heightFeet, setHeightFeet] = useState("");
   const [heightInches, setHeightInches] = useState("");
   const [weight, setWeight] = useState("");
   const [activityLevel, setActivityLevel] = useState("sedentary");
-
+  const [goal, setGoal] = useState("maintain");
   
 
   // Handle changes in form input fields
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    
-  
       // Convert values to numbers to perform validation
     const numAge = parseFloat(age);
     const numWeight = parseFloat(weight);
@@ -31,73 +30,25 @@ function Form() {
       alert("Please enter valid numbers for all fields.");
       return; // Stop the form submission if validation fails
     }
-
-
-    // Convert weight to kilograms (pounds to kilograms: 1 lb = 0.453592 kg)
-    const weightInKg = numWeight / 2.205;
       
     const calculatedCalories = calculateCalories(
       gender,
       numAge,
-      weightInKg,
+      numWeight,
       numHeightFeet,
       numHeightInches,
       activityLevel
     );
 
-    navigate("/results", { state: { calculatedCalories } });
+    
+
+
+    navigate("/results", { state: { calculatedCalories, goal } });
   
-    // Pass calculated results to the results page or show them
-    console.log(calculatedCalories);
+ 
   };
     
-    const calculateCalories = (gender, age, weight, heightFeet, heightInches, activityLevel) => {
-      
-      // Convert height from feet and inches to centimeters
-      const heightToCm = ((heightFeet * 12) + heightInches) * 2.54;
-      
-      const genderLower = gender.toLowerCase();
-      // Calculate BMR (Basal Metabolic Rate) using Harris-Benedict equation
-      let bmr;
-      if (genderLower === "male") {
-        bmr = 66.47 + (13.75 * weight) + (5.003 * heightToCm) - (6.755 * age);
-      } else if (genderLower === "female") {
-        bmr = 655.1 + (9.563 * weight) + (1.850 * heightToCm) - (4.76 * age);
-      } else {
-        // If gender is non-binary, just use a basic average BMR calculation for now
-        bmr = 500 + (11 * weight) + (4.5 * heightToCm) - (4.5 * age);
-      }
     
-      // Adjust the BMR based on activity level
-      let activityMultiplier;
-      switch (activityLevel) {
-        case "sedentary":
-          activityMultiplier = 1.2;
-          break;
-        case "light":
-          activityMultiplier = 1.375;
-          break;
-        case "moderate":
-          activityMultiplier = 1.55;
-          break;
-        case "active":
-          activityMultiplier = 1.725;
-          break;
-        case "extra-active":
-          activityMultiplier = 1.9;
-          break;
-        default:
-          activityMultiplier = 1.2; // Default to sedentary if no selection is made
-          break;
-      }
-    
-      // Calculate daily caloric needs by multiplying BMR by activity level factor
-      const dailyCalories = Math.round(bmr * activityMultiplier * 100) / 100;
-      // Return the calculated calories
-      return dailyCalories;
-    };
-      
-
   return (
     <section className={styles.infoForm}>
       
@@ -148,6 +99,14 @@ function Form() {
             <option value="active">Very active (hard exercise or sports 6-7 days a week)</option>
             <option value="extra-active">Extra active (very hard exercise, physical job, or training twice a day)</option>
           </select>
+
+          <label htmlFor="weight-goal">Select your weight goal:</label>
+          <select id="weight-goal" name="weight-goal" value={goal} onChange={(e) => setGoal(e.target.value)}>
+            <option value="lose">Lose Weight</option>
+            <option value="maintain">Maintain Weight</option>
+            <option value="gain">Gain Muscle</option>
+          </select>
+
 
         <button type="submit">Submit</button>
       </form>

@@ -4,7 +4,11 @@ import styles from "./Results.module.css"; // Create this CSS file for styling
 function Results() {
   const location = useLocation();
   const navigate = useNavigate();
-  const calculatedCalories = location.state?.calculatedCalories;
+
+  // Get the values passed via location.state
+  const { calculatedCalories, goal } = location.state || {};  // Safely access state with optional chaining
+  console.log(goal);
+  
 
   // Define surplus and deficit for weight gain/loss
   const calorieSurplus = calculatedCalories ? calculatedCalories + 500 : null;
@@ -16,9 +20,14 @@ function Results() {
 
       {calculatedCalories ? (
         <div className={styles.calorieInfo}>
+          {/* Conditionally render based on the goal */}
+          {goal === "lose" && calorieDeficit && (
+            <p>📉 **To Lose Weight**: {calorieDeficit} calories/day</p>
+          )}
           <p>🔹 **Maintenance Calories**: {calculatedCalories} calories/day</p>
-          <p>📉 **To Lose Weight**: {calorieDeficit} calories/day</p>
-          <p>📈 **To Gain Weight**: {calorieSurplus} calories/day</p>
+          {goal === "gain" && calorieSurplus && (
+            <p>📈 **To Gain Weight**: {calorieSurplus} calories/day</p>
+          )}
         </div>
       ) : (
         <p className={styles.errorText}>⚠ No data received. Please go back and submit the form.</p>

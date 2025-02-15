@@ -1,15 +1,24 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import './index.css';
-import Form from './Form/Form.jsx';
-import Results from './Results/Results.jsx';
-import App from './App.jsx';
+import Form from './components/Form/Form.jsx';
+import Results from './components/Results/Results.jsx';
+import Home from './pages/Home.jsx';
+import RootLayout from './layout/RootLayout.jsx';
+
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Form />,
+    element: <RootLayout />,
+    children: [
+      {index:true, element: <Home />}
+    ]
+
+  },
+  {
+    path: "form",
+    element: <Form />
   },
   {
     path: "results",

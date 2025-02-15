@@ -1,7 +1,7 @@
 import styles from "./Form.module.css";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { calculateCalories } from "../Utils/calculations";
+import { calculateCalories } from "../../Utils/calculations";
 
 function Form() {
   const navigate = useNavigate();
@@ -109,6 +109,7 @@ function Form() {
 
 
         <button type="submit">Submit</button>
+        <button type="button" onClick={()=> navigate("/")}>Cancel</button>
       </form>
      
     </section>

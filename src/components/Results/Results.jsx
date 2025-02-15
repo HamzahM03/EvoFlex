@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import styles from "./Results.module.css"; // Create this CSS file for styling
-import { assignMacros } from "../Utils/calculations";
+import { assignMacros } from "../../Utils/calculations";
 
 function Results() {
   const location = useLocation();

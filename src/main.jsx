@@ -5,6 +5,7 @@ import Form from './components/Form/Form.jsx';
 import Results from './components/Results/Results.jsx';
 import Home from './pages/Home.jsx';
 import RootLayout from './layout/RootLayout.jsx';
+import About from './components/About/About.jsx';
 
 
 const router = createBrowserRouter([
@@ -12,7 +13,7 @@ const router = createBrowserRouter([
     path: "/",
     element: <RootLayout />,
     children: [
-      {index:true, element: <Home />}
+      {index:true, element: <Home />},
     ]
 
   },

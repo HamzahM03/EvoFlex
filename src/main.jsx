@@ -5,7 +5,7 @@ import Form from './components/Form/Form.jsx';
 import Results from './components/Results/Results.jsx';
 import Home from './pages/Home.jsx';
 import RootLayout from './layout/RootLayout.jsx';
-import About from './components/About/About.jsx';
+import LearnMore from './components/LearnMore/LearnMore.jsx';
 
 
 const router = createBrowserRouter([
@@ -22,8 +22,8 @@ const router = createBrowserRouter([
     element: <Form />
   },
   {
-    path: "results",
-    element: <Results />
+    path: "learnMore",
+    element: <LearnMore />
   }
 ]);
 

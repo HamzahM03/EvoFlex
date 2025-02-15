@@ -109,7 +109,7 @@ function Form() {
 
 
         <button type="submit">Submit</button>
-        <button type="button" onClick={()=> navigate("/")}>Cancel</button>
+        <button type="button" className={styles.cancelBtn} onClick={()=> navigate("/")}>Cancel</button>
       </form>
      
     </section>

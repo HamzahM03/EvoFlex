@@ -97,6 +97,16 @@ button:hover {
   background-color: #4991d4;
 }
 
+.cancelBtn {
+  background-color: black;
+  color:white;
+  margin-top:10px;
+}
+
+.cancelBtn:hover{
+  background-color: #333;
+}
+
 /* Responsive Design */
 @media (max-width: 500px) {
   .formDiv {

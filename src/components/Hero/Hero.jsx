@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import styles from "./Hero.module.css";
 import { useNavigate } from "react-router-dom";
+import { Link as ScrollLink } from "react-scroll";
 
 const Hero = () => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ const Hero = () => {
           <h1>Welcome to Evo Flex</h1>
           <p>Your personalized fitness and nutrition tracker.</p>
           <div className={styles.buttons}>
-            <button className={styles.learnMore}>Learn More</button>
+            <button className={styles.learnMore} onClick={()=>navigate("about")}><ScrollLink to="about" smooth={true} duration={500}>Learn More</ScrollLink></button>
             <button className={styles.getStarted} onClick={()=> navigate("/form")} >Get Started</button>
           </div>
         </section>

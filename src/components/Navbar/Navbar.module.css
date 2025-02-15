@@ -1,5 +1,7 @@
 /* Navbar.module.css */
 .navbar {
+  position: fixed;
+  width: 100%;  /* Full width */
   display: flex;
   justify-content: space-between;
   align-items: center;

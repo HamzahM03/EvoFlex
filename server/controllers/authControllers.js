@@ -7,7 +7,7 @@ export const register = async (req,res)=>{
   const {name, email, password} = req.body;
 
   if(!name || !email || !password){
-    return res.json({success: false, message: 'Missing Details'})
+    return res.status(400).json({success: false, message: 'Missing Details'})
   }
 
   try {
@@ -15,7 +15,7 @@ export const register = async (req,res)=>{
     const existingUser = await userModel.findOne({email})
 
     if(existingUser){
-      return res.json({success: false, message: "User already exists"});
+      return res.status(409).json({success: false, message: "User already exists"});
     }
 
 
@@ -43,10 +43,10 @@ export const register = async (req,res)=>{
 
     await transporter.sendMail(mailOptions);
 
-    return res.json({success: true});
+    return res.status(201).json({success: true, message: "User registered successfully"});
 
   } catch (error) {
-    res.json({success: false, message: error.message})
+    res.staus(500).json({success: false, message: error.message})
   }
 }
 
@@ -62,13 +62,13 @@ export const login = async (req,res)=>{
     const user = await userModel.findOne({email});
 
     if(!user){
-      return res.json({success:false, message: "Invalid email or password"});
+      return res.status(401).json({success:false, message: "Invalid email or password"});
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if(!isMatch){
-      return res.json({success: false, message: "Invalid email or password"});
+      return res.status(401).json({success: false, message: "Invalid email or password"});
     }
     
     const token = jwt.sign({id: user._id}, process.env.JWT_SECRET, { expiresIn: '7d' });
@@ -81,7 +81,7 @@ export const login = async (req,res)=>{
     });
 
     
-    return res.json({success: true});
+    return res.status(200).json({success: true, message: "Login successful"});
 
   } catch (error) {
     return res.json({success:false, message: error.message})
@@ -96,10 +96,10 @@ export const logout = async (req,res)=>{
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
     })
 
-    return res.json({success: true, message: "Logged out"})
+    return res.status(200).json({success: true, message: "Logged out"})
     
   } catch (error) {
-    return res.json({success:false, message: error.message})
+    return res.status(500).json({success:false, message: error.message})
   }
 }
 
@@ -107,15 +107,20 @@ export const logout = async (req,res)=>{
 // Send Verification OTP to the User's Email
 export const sendVerifyOtp = async (req,res)=>{
   try {
-    const {userId} = req.body;
+    const userId = req.user.userId;
     
     const user = await userModel.findById(userId);
+
+    if (!user) {
+      return res.json({ success: false, message: "User not found" });
+    }
 
     if(user.isAccountVerified){
       return res.json({success: false, message: "Account already verified"});
     }
 
-   const otp = String(Math.float(100000 + Math.random() * 900000));
+  //Generate a 6-digit OTP
+   const otp = String(Math.floor(100000 + Math.random() * 900000));
 
    user.verifyOtp = otp;
    user.verifyOtpExpireAt = Date.now() + 24 * 60 * 60 * 1000;
@@ -138,14 +143,14 @@ export const sendVerifyOtp = async (req,res)=>{
 }
 
 export const verifyEmail = async (req,res)=>{
-  const {userId, otp} = req.body;
+  const {otp} = req.body;
 
-  if(!userId || !otp){
-    return res.json({success: false, message: "Missing Details"});
+  if(!otp){
+    return res.json({success: false, message: "Missing OTP"});
   }
 
   try {
-        const user = await userModel.findById(userId);
+        const user = await userModel.findById(req.user.userId);
         
         if(!user){
           return res.json({success: false, message: "User not found"});

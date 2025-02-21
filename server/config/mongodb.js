@@ -6,7 +6,8 @@ const connectDB = async() => {
     console.log("Database Connected")
   );
 
-  await mongoose.connect(`${process.env.MONGODB_URL}/evo-flex`);
+  await mongoose.connect(process.env.MONGODB_URL, { dbName: "evo-flex" });
+
 };
 
 export default connectDB;

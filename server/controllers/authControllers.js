@@ -277,8 +277,8 @@ export const resetPassword = async(req,res)=>{
       return res.json({success: false, message: "OTP Expired"});
     }
 
-    if (newPassword.length < 6) {
-      return res.status(400).json({ success: false, message: "Password must be at least 6 characters" });
+    if (newPassword.length < 8) {
+      return res.status(400).json({ success: false, message: "Password must be at least 8 characters" });
     }
     
 

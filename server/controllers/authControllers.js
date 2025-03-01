@@ -4,57 +4,89 @@ import userModel from "../models/userModel.js";
 import transporter from "../config/nodeMailer.js";
 import crypto from "crypto";
 
-export const register = async (req,res)=>{
-  const {name, email, password} = req.body;
-  const normalizedEmail = email?.toLowerCase();
-
-  if(!name || !normalizedEmail || !password){
-    return res.status(400).json({success: false, message: 'Missing Details'})
-  }
-
-  if (password.length < 8) {
-    return res.status(400).json({ success: false, message: "Password must be at least 8 characters long" });
-  }
-
+export const register = async (req, res) => {
   try {
-    
-    const existingUser = await userModel.findOne({email: normalizedEmail})
+    // Step 1: Extract and Normalize Data
+    let { name, email, password, age, gender, height, weight, weightGoal, activityLevel, goalType } = req.body;
+    email = email?.toLowerCase().trim(); // Ensures case insensitivity
 
-    if(existingUser){
-      return res.status(409).json({success: false, message: "User already exists"});
+    // Step 2: Validate Required Fields (Improved)
+    const requiredFields = ["name", "email", "password", "age", "gender", "height", "weight", "weightGoal", "activityLevel", "goalType"];
+    const missingFields = requiredFields.filter(field => !req.body[field]);
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: `Missing required fields: ${missingFields.join(", ")}` 
+      });
     }
 
+    if (password.length < 8) {
+      return res.status(400).json({ success: false, message: "Password must be at least 8 characters long" });
+    }
 
-    const hashedPassword = await bcrypt.hash(password,10);
+    // Step 3: Check if User Already Exists
+    const existingUser = await userModel.findOne({ email });
+    if (existingUser) {
+      return res.status(409).json({ success: false, message: "User already exists" });
+    }
 
-    const user = new userModel({name, email: normalizedEmail, password: hashedPassword});
-    await user.save();
+    // Step 4: Hash Password (Security Best Practice)
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const token = jwt.sign({id: user._id}, process.env.JWT_SECRET, { expiresIn: '7d' });
+    // Step 5: Calculate Calories & Macros
+    const targetCalories = calculateCalories(age, gender, height, weight, activityLevel, goalType);
+    const macros = calculateMacros(targetCalories, goalType);
 
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000
+    // Step 6: Create & Save User
+    const user = new userModel({
+      name,
+      email,
+      password: hashedPassword,
+      age,
+      gender,
+      height,
+      weight,
+      weightGoal,
+      activityLevel,
+      goalType,
+      targetCalories,
+      macros,
     });
 
-    // Sending welcome email
+    await user.save();
+
+    // Step 7: Generate JWT Token
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+    // Step 8: Set Secure Cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    // Step 9: Send Welcome Email
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
       to: email,
-      subject: 'Welcome to EvoFlex',
-      text: `Welcome to EvoFlex! Your account has been created with email id: ${email}`
-    }
+      subject: "Welcome to EvoFlex",
+      text: `Welcome to EvoFlex! Your account has been created successfully. Start tracking your fitness journey now!`,
+    };
 
     await transporter.sendMail(mailOptions);
 
-    return res.status(201).json({success: true, message: "User registered successfully"});
+    // Step 10: Respond with Success Message
+    return res.status(201).json({ success: true, message: "User registered successfully" });
 
   } catch (error) {
-    res.status(500).json({success: false, message: error.message})
+    // Proper Error Handling
+    console.error("Registration Error:", error);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
   }
-}
+};
+
 
 export const login = async (req,res)=>{
   const {email, password} = req.body;

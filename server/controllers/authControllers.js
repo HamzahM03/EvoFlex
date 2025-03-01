@@ -2,130 +2,133 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import userModel from "../models/userModel.js";
 import transporter from "../config/nodeMailer.js";
+import { calculateCalories, calculateMacros } from "../utils/calculations.js";
 import crypto from "crypto";
+import { registrationSchema } from "../utils/validation.js"; // Import Joi schema
 
 export const register = async (req, res) => {
   try {
-    // Step 1: Extract and Normalize Data
-    let { name, email, password, age, gender, height, weight, weightGoal, activityLevel, goalType } = req.body;
-    email = email?.toLowerCase().trim(); // Ensures case insensitivity
+    let { name, username, email, password, dateOfBirth, age, gender, height, heightFeet, heightInches, weight, weightGoal, activityLevel, goalType, preferredUnit, profilePic } = req.body;
 
-    // Step 2: Validate Required Fields (Improved)
-    const requiredFields = ["name", "email", "password", "age", "gender", "height", "weight", "weightGoal", "activityLevel", "goalType"];
-    const missingFields = requiredFields.filter(field => !req.body[field]);
+    email = email.toLowerCase().trim();
 
-    if (missingFields.length > 0) {
-      return res.status(400).json({ 
-        success: false, 
-        message: `Missing required fields: ${missingFields.join(", ")}` 
-      });
+    const { error } = registrationSchema.validate(req.body, { abortEarly: false });
+    if (error) {
+      return res.status(400).json({ success: false, message: "Validation error", errors: error.details.map(err => err.message) });
     }
 
-    if (password.length < 8) {
-      return res.status(400).json({ success: false, message: "Password must be at least 8 characters long" });
-    }
-
-    // Step 3: Check if User Already Exists
     const existingUser = await userModel.findOne({ email });
     if (existingUser) {
       return res.status(409).json({ success: false, message: "User already exists" });
     }
 
-    // Step 4: Hash Password (Security Best Practice)
-    const hashedPassword = await bcrypt.hash(password, 10);
+    if (username) {
+      const existingUsername = await userModel.findOne({ username });
+      if (existingUsername) {
+        return res.status(409).json({ success: false, message: "Username is already taken" });
+      }
+    }
 
-    // Step 5: Calculate Calories & Macros
-    const targetCalories = calculateCalories(age, gender, height, weight, activityLevel, goalType);
+    let heightCm, weightKg;
+    if (preferredUnit === "imperial") {
+      heightFeet = parseInt(heightFeet, 10);
+      heightInches = parseInt(heightInches, 10);
+
+      if (isNaN(heightFeet) || isNaN(heightInches)) {
+        return res.status(400).json({ success: false, message: "Invalid height input" });
+      }
+
+      if (heightInches < 0 || heightInches >= 12) {
+        return res.status(400).json({ success: false, message: "Inches should be between 0-11" });
+      }
+
+      heightCm = (heightFeet * 30.48) + (heightInches * 2.54);
+      weightKg = parseFloat(weight) * 0.453592;
+    } else {
+      heightCm = parseFloat(height);
+      weightKg = parseFloat(weight);
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const targetCalories = calculateCalories(age, gender, heightCm, weightKg, activityLevel, goalType);
     const macros = calculateMacros(targetCalories, goalType);
 
-    // Step 6: Create & Save User
     const user = new userModel({
-      name,
-      email,
-      password: hashedPassword,
-      age,
-      gender,
-      height,
-      weight,
-      weightGoal,
-      activityLevel,
-      goalType,
-      targetCalories,
-      macros,
+      name, username, email, password: hashedPassword, profilePic: profilePic || "",
+      dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+      age, gender, heightCm, weightKg, weightGoal,
+      activityLevel, goalType, preferredUnit: preferredUnit || "metric", targetCalories, macros,
+      tokenExpireAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // Store token expiration in DB
     });
 
     await user.save();
 
-    // Step 7: Generate JWT Token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-    // Step 8: Set Secure Cookie
     res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      httpOnly: true, secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    // Step 9: Send Welcome Email
-    const mailOptions = {
+    await transporter.sendMail({
       from: process.env.SENDER_EMAIL,
       to: email,
       subject: "Welcome to EvoFlex",
-      text: `Welcome to EvoFlex! Your account has been created successfully. Start tracking your fitness journey now!`,
-    };
+      text: "Welcome to EvoFlex! Your account has been created successfully. Start tracking your fitness journey now!",
+    });
 
-    await transporter.sendMail(mailOptions);
-
-    // Step 10: Respond with Success Message
     return res.status(201).json({ success: true, message: "User registered successfully" });
 
   } catch (error) {
-    // Proper Error Handling
     console.error("Registration Error:", error);
     return res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 
 
-export const login = async (req,res)=>{
-  const {email, password} = req.body;
+export const login = async (req, res) => {
+  const { email, password } = req.body;
   const normalizedEmail = email?.toLowerCase();
 
-  if(!normalizedEmail || !password) {
-    return res.status(400).json({success: false, message: "Email and Password are required"})
+  if (!normalizedEmail || !password) {
+    return res.status(400).json({ success: false, message: "Email and Password are required" });
   }
 
   try {
+    const user = await userModel.findOne({ email: normalizedEmail });
 
-    const user = await userModel.findOne({email: normalizedEmail});
+    if (!user) {
+      return res.status(401).json({ success: false, message: "Invalid email or password" });
+    }
 
-    if(!user){
-      return res.status(401).json({success:false, message: "Invalid email or password"});
+    if (user.tokenExpireAt && user.tokenExpireAt < new Date()) {
+      return res.status(401).json({ success: false, message: "Session expired, please log in again" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-
-    if(!isMatch){
-      return res.status(401).json({success: false, message: "Invalid email or password"});
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: "Invalid email or password" });
     }
-    
-    const token = jwt.sign({id: user._id}, process.env.JWT_SECRET, { expiresIn: '7d' });
 
-    res.cookie('token', token, {
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+    user.tokenExpireAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    await user.save();
+
+    res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    
-    return res.status(200).json({success: true, message: "Login successful"});
+    return res.status(200).json({ success: true, message: "Login successful" });
 
   } catch (error) {
-    return res.status(500).json({success:false, message: error.message})
+    return res.status(500).json({ success: false, message: error.message });
   }
-}
+};
 
 export const logout = async (req,res)=>{
   try {
@@ -190,42 +193,42 @@ export const sendVerifyOtp = async (req,res)=>{
 }
 
 // Verify the email using otp
-export const verifyEmail = async (req,res)=>{
-  const {otp} = req.body;
+export const verifyEmail = async (req, res) => {
+  const { otp } = req.body;
 
-
-  if(!otp){
-    return res.json({success: false, message: "Missing OTP"});
+  if (!otp) {
+    return res.json({ success: false, message: "Missing OTP" });
   }
 
   try {
     const user = await userModel.findById(req.user.userId);
-    
-    if(!user){
-      return res.json({success: false, message: "User not found"});
+
+    if (!user) {
+      return res.json({ success: false, message: "User not found" });
     }
 
     const hashedOtpInput = crypto.createHash("sha256").update(otp).digest("hex");
+
     if (user.verifyOtp !== hashedOtpInput) {
       return res.status(400).json({ success: false, message: "Invalid OTP" });
     }
 
-    if(user.verifyOtpExpireAt < Date.now()){
-      return res.json({success: false, message: "OTP Expired"});
+    if (!user.verifyOtpExpireAt || user.verifyOtpExpireAt < new Date()) {
+      return res.json({ success: false, message: "OTP Expired" });
     }
 
-      user.isAccountVerified = true;
-      user.verifyOtp = '';
-      user.verifyOtpExpireAt = 0;
+    user.isAccountVerified = true;
+    user.verifyOtp = "";
+    user.verifyOtpExpireAt = null;
 
-      await user.save();
+    await user.save();
 
-      return res.json({success: true, message: "Email verified successfully"});
+    return res.json({ success: true, message: "Email verified successfully" });
 
   } catch (error) {
-    return res.json({success: false, message: error.message});
+    return res.json({ success: false, message: error.message });
   }
-}
+};
 
 // Check if user is authenticated
 export const isAuthenticated = async (req,res)=>{

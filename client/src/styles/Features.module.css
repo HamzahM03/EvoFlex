@@ -1,13 +1,19 @@
 .features {
   text-align: center;
+  height: 100vh;
   padding: 50px 20px;
 }
 
 .featuresGrid {
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* ✅ Adjusts dynamically */
   gap: 20px;
+  justify-content: center;
+  align-items: center;
+  max-width: 1000px;
+  margin: 0 auto;
 }
+
 
 .featureCard {
   background: white;

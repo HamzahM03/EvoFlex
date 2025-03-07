@@ -1,23 +1,34 @@
+
 .navbar {
   display: flex;
+  width: 60%;
   justify-content: space-between;
-  align-items: center;
+  align-items: center; /* Ensures vertical alignment */
   padding: 20px 50px;
   color: black;
+  height: 60px; /* Ensure a uniform height */
 }
 
 .logo {
-  font-size: 24px;
+  font-size: 30px;
   font-weight: bold;
+  margin: 0; /* Remove any default margin */
+  display: flex;
+  align-items: center; /* Center within itself */
 }
 
 .navLinks {
   list-style: none;
   display: flex;
+  align-items: center; /* Ensure links align properly */
+  margin: 0;
+  padding: 0;
 }
 
 .navLinks li {
   margin: 0 15px;
+  display: flex;
+  align-items: center; /* Aligns text/icons vertically */
 }
 
 .navLinks a {
@@ -28,6 +39,12 @@
 }
 
 .navLinks a:hover {
-  color:  rgb(69, 69, 69)
+  color: rgb(69, 69, 69);
+}
+
+/* Fix user icon alignment */
+.userIcon {
+  display: flex;
+  align-items: center;
 }
 

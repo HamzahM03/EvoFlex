@@ -1,0 +1,25 @@
+.whyChooseUs {
+  text-align: center;
+  padding: 50px 20px;
+  background: #f8f9fa;
+}
+
+.whyGrid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.whyCard {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 250px;
+}
+
+.whyCard h3 {
+  color: #007bff;
+}

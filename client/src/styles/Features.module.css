@@ -8,6 +8,10 @@
   align-items: center; /* Centers content horizontally */
 }
 
+.features h2{
+  font-size: 40px;
+}
+
 .featuresGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));

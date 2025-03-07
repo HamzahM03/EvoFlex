@@ -8,6 +8,9 @@
   align-items: center; /* ✅ Centers content horizontally */
 }
 
+.whyChooseUs h2{
+  font-size: 40px;
+}
 
 .whyGrid {
   display: flex;
@@ -25,6 +28,3 @@
   width: 250px;
 }
 
-.whyCard h3 {
-  color: #007bff;
-}

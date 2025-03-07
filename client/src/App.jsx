@@ -1,11 +1,12 @@
 import CalorieCalculator from "./components/CalorieCalculator"
+import Home from "./pages/Home"
 
 function App() {
  
 
   return (
     <div>
-      <CalorieCalculator />
+      <Home/>
     </div>
   )
 }

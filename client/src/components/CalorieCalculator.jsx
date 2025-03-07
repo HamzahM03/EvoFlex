@@ -1,19 +1,40 @@
 import { useState } from "react";
-import styles from "../styles/CalorieCalculator.module.css"; 
-import { calculateMacros, calculateCalories } from "../utility/calculations";
+import { calculateCalories, calculateMacros } from "../utils/calculations";
+import styles from "../styles/CalorieCalculator.module.css"; // Import CSS module
 
 function CalorieCalculator() {
+  const [unit, setUnit] = useState("metric"); // ✅ State to track unit selection (metric/imperial)
   const [age, setAge] = useState("");
   const [gender, setGender] = useState("male");
   const [weight, setWeight] = useState("");
   const [height, setHeight] = useState("");
+  const [heightFeet, setHeightFeet] = useState("");
+  const [heightInches, setHeightInches] = useState("");
   const [activityLevel, setActivityLevel] = useState("sedentary");
   const [goalType, setGoalType] = useState("maintenance");
   const [calories, setCalories] = useState(null);
   const [macros, setMacros] = useState(null);
 
+  const toggleUnit = () => {
+    setUnit(unit === "metric" ? "imperial" : "metric"); // ✅ Toggle between metric & imperial
+    setWeight(""); // Reset values when switching
+    setHeight("");
+    setHeightFeet("");
+    setHeightInches("");
+  };
+
   const handleCalculate = () => {
-    const totalCalories = calculateCalories(age, gender, height, weight, activityLevel, goalType);
+    let weightKg, heightCm;
+
+    if (unit === "imperial") {
+      weightKg = weight * 0.453592; // Convert lbs to kg
+      heightCm = heightFeet * 30.48 + heightInches * 2.54; // Convert ft/in to cm
+    } else {
+      weightKg = parseFloat(weight);
+      heightCm = parseFloat(height);
+    }
+
+    const totalCalories = calculateCalories(age, gender, heightCm, weightKg, activityLevel, goalType);
     setCalories(Math.round(totalCalories));
 
     const calculatedMacros = calculateMacros(totalCalories, goalType);
@@ -24,6 +45,11 @@ function CalorieCalculator() {
     <div className={styles.container}>
       <h2>Calorie & Macro Calculator</h2>
 
+      {/* ✅ Toggle Button for Metric/Imperial */}
+      <button className={styles.toggleButton} onClick={toggleUnit}>
+        Switch to {unit === "metric" ? "Imperial (lbs, ft/in)" : "Metric (kg, cm)"}
+      </button>
+
       <label>Age:</label>
       <input type="number" className={styles.input} value={age} onChange={(e) => setAge(e.target.value)} />
 
@@ -33,11 +59,37 @@ function CalorieCalculator() {
         <option value="female">Female</option>
       </select>
 
-      <label>Weight (kg):</label>
-      <input type="number" className={styles.input} value={weight} onChange={(e) => setWeight(e.target.value)} />
+      {/* ✅ Dynamic Inputs Based on Unit Selection */}
+      {unit === "metric" ? (
+        <>
+          <label>Weight (kg):</label>
+          <input type="number" className={styles.input} value={weight} onChange={(e) => setWeight(e.target.value)} />
 
-      <label>Height (cm):</label>
-      <input type="number" className={styles.input} value={height} onChange={(e) => setHeight(e.target.value)} />
+          <label>Height (cm):</label>
+          <input type="number" className={styles.input} value={height} onChange={(e) => setHeight(e.target.value)} />
+        </>
+      ) : (
+        <>
+          <label>Weight (lbs):</label>
+          <input type="number" className={styles.input} value={weight} onChange={(e) => setWeight(e.target.value)} />
+
+          <label>Height (ft & in):</label>
+          <input
+            type="number"
+            className={styles.input}
+            placeholder="Feet"
+            value={heightFeet}
+            onChange={(e) => setHeightFeet(e.target.value)}
+          />
+          <input
+            type="number"
+            className={styles.input}
+            placeholder="Inches"
+            value={heightInches}
+            onChange={(e) => setHeightInches(e.target.value)}
+          />
+        </>
+      )}
 
       <label>Activity Level:</label>
       <select className={styles.select} value={activityLevel} onChange={(e) => setActivityLevel(e.target.value)}>

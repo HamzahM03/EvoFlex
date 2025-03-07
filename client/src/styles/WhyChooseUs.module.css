@@ -1,8 +1,13 @@
 .whyChooseUs {
   text-align: center;
   padding: 50px 20px;
-  background: #f8f9fa;
+  min-height: 100vh; /* ✅ Full viewport height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* ✅ Centers content vertically */
+  align-items: center; /* ✅ Centers content horizontally */
 }
+
 
 .whyGrid {
   display: flex;

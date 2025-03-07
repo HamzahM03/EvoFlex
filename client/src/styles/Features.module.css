@@ -1,18 +1,23 @@
 .features {
   text-align: center;
-  height: 100vh;
   padding: 50px 20px;
+  min-height: 100vh; /* Takes full viewport height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Centers content vertically */
+  align-items: center; /* Centers content horizontally */
 }
 
 .featuresGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* ✅ Adjusts dynamically */
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px;
   justify-content: center;
-  align-items: center;
+  align-items: stretch; /* Ensures all cards stretch to the same height */
   max-width: 1000px;
   margin: 0 auto;
 }
+
 
 
 .featureCard {
